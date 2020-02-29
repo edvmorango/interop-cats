@@ -13,7 +13,7 @@ import zio.{ Task, _ }
 import scala.collection.mutable
 import scala.concurrent.ExecutionContext.global
 
-class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with DefaultRuntime {
+class CatsZManagedSyntaxSpec extends Specification with AroundTimeout {
 
   def is = s2"""
 
@@ -54,7 +54,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.interrupt.unit)
     }
 
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -73,7 +73,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.fail(new RuntimeException()).unit)
     }
 
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -92,7 +92,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.die(new RuntimeException()).unit)
     }
 
-    unsafeRun(testCase.sandbox.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.sandbox.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -105,10 +105,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
 
     val testCase = {
       val managed: ZManaged[Any, Throwable, Unit] = res(1).toManaged
-      managed.use(_ => ZIO.unit)
+      managed.use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase.sandbox.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.sandbox.orElse(ZIO.unit))
     effects must be_===(List(1))
   }
 
@@ -119,10 +119,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
 
     val testCase = {
       val managed: ZManaged[Any, Throwable, Unit] = res(1).toManaged
-      managed.use(_ => ZIO.unit)
+      managed.use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase)
+    Runtime.default.unsafeRun(testCase)
     effects must be_===(List(1, 1))
   }
 
@@ -138,10 +138,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
     val testCase = {
       val managed1: ZManaged[Any, Throwable, Unit] = res(1).toManaged
       val managed2: ZManaged[Any, Throwable, Unit] = man(2)
-      (managed1 *> managed2).use(_ => ZIO.unit)
+      (managed1 *> managed2).use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase)
+    Runtime.default.unsafeRun(testCase)
     effects must be_===(List(1, 2, 2, 1))
 
   }
@@ -160,7 +160,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.interrupt.unit)
     }
 
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -179,7 +179,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.fail(new RuntimeException()).unit)
     }
 
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -198,7 +198,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
       managed.use(_ => ZIO.die(new RuntimeException()).unit)
     }
 
-    unsafeRun(testCase.sandbox.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.sandbox.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -211,10 +211,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
 
     val testCase = {
       val managed: ZManaged[Any, Throwable, Unit] = res(1).toManagedZIO
-      managed.use(_ => ZIO.unit)
+      managed.use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase.sandbox.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.sandbox.orElse(ZIO.unit))
     effects must be_===(List(1))
   }
 
@@ -225,10 +225,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
 
     val testCase = {
       val managed: ZManaged[Any, Throwable, Unit] = res(1).toManagedZIO
-      managed.use(_ => ZIO.unit)
+      managed.use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase)
+    Runtime.default.unsafeRun(testCase)
     effects must be_===(List(1, 1))
   }
 
@@ -244,10 +244,10 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
     val testCase = {
       val managed1: ZManaged[Any, Throwable, Unit] = res(1).toManagedZIO
       val managed2: ZManaged[Any, Throwable, Unit] = man(2)
-      (managed1 *> managed2).use(_ => ZIO.unit)
+      (managed1 *> managed2).use[Any, Throwable, Unit](_ => ZIO.unit)
     }
 
-    unsafeRun(testCase)
+    Runtime.default.unsafeRun(testCase)
     effects must be_===(List(1, 2, 2, 1))
 
   }
@@ -260,7 +260,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
     val testCase = ZIO.runtime[Any].flatMap { implicit r =>
       man(1).toResource.use(_ => ZIO.unit)
     }
-    unsafeRun(testCase)
+    Runtime.default.unsafeRun(testCase)
     effects must be_===(List(1, 2))
   }
 
@@ -277,7 +277,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
     val testCase = ZIO.runtime[Any].flatMap { implicit r =>
       man(1).toResource.use(_ => ZIO.fail(new RuntimeException()).unit)
     }
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
@@ -294,16 +294,16 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
     val testCase = ZIO.runtime[Any].flatMap { implicit r =>
       man(1).toResource.use(_ => ZIO.interrupt)
     }
-    unsafeRun(testCase.orElse(ZIO.unit))
+    Runtime.default.unsafeRun(testCase.orElse(ZIO.unit))
     effects must be_===(List(1, 2))
   }
 
   def toResourceCancelableReservationAcquisition =
-    unsafeRun {
+    Runtime.default.unsafeRun {
       ZIO.runtime[Any] >>= { implicit runtime =>
         implicit val ctx: ContextShift[CIO] = CIO.contextShift(global)
 
-        for {
+        (for {
           startLatch <- Promise.make[Nothing, Unit]
           endLatch   <- Promise.make[Nothing, Unit]
           release    <- Ref.make(false)
@@ -328,7 +328,7 @@ class CatsZManagedSyntaxSpec extends Specification with AroundTimeout with Defau
               }
           _   <- endLatch.await.timeout(zio.duration.Duration(10, TimeUnit.SECONDS))
           res <- release.get
-        } yield res must_=== true
+        } yield res must_=== true).provideLayer(ZEnv.live)
       }
     }
 

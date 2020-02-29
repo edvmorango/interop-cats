@@ -12,7 +12,7 @@ import zio.interop.catz._
 
 import scala.concurrent.ExecutionContext.global
 
-class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with AroundTimeout with DefaultRuntime {
+class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with AroundTimeout {
 
   def is =
     s2"""
@@ -47,10 +47,10 @@ class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with Aroun
   def fIsCats = testCaseJoin[cats.effect.IO].unsafeRunSync()
 
   def fIsZio: List[Int] =
-    unsafeRun(testCaseJoin[zio.Task])
+    Runtime.default.unsafeRun(testCaseJoin[zio.Task])
 
   def bracketFail =
-    unsafeRun {
+    Runtime.default.unsafeRun {
       (for {
         started  <- Promise.make[Nothing, Unit]
         released <- Promise.make[Nothing, Unit]
@@ -67,11 +67,11 @@ class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with Aroun
         _ <- started.await
         _ <- fail.succeed(())
         _ <- released.await
-      } yield ()).timeout(10.seconds)
+      } yield ()).timeout(10.seconds).provideLayer(ZEnv.live)
     } must beSome(())
 
   def bracketTerminate =
-    unsafeRun {
+    Runtime.default.unsafeRun {
       (for {
         started   <- Promise.make[Nothing, Unit]
         released  <- Promise.make[Nothing, Unit]
@@ -88,11 +88,11 @@ class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with Aroun
         _ <- started.await
         _ <- terminate.succeed(())
         _ <- released.await
-      } yield ()).timeout(10.seconds)
+      } yield ()).timeout(10.seconds).provideLayer(ZEnv.live)
     } must beSome(())
 
   def bracketInterrupt =
-    unsafeRun {
+    Runtime.default.unsafeRun {
       (for {
         started  <- Promise.make[Nothing, Unit]
         released <- Promise.make[Nothing, Unit]
@@ -106,7 +106,7 @@ class ZioWithFs2Spec(implicit ee: ExecutionEnv) extends Specification with Aroun
         _ <- started.await
         _ <- f.interrupt
         _ <- released.await
-      } yield ()).timeout(10.seconds)
+      } yield ()).timeout(10.seconds).provideLayer(ZEnv.live)
     } must beSome(())
 
   def testCaseJoin[F[_]: Concurrent]: F[List[Int]] = {

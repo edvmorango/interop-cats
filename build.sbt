@@ -4,6 +4,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 name := "interop-cats"
 
+
 inThisBuild(
   List(
     organization := "dev.zio",
@@ -46,14 +47,15 @@ lazy val interopCats = crossProject(JSPlatform, JVMPlatform)
   .settings(stdSettings("zio-interop-cats"))
   .settings(buildInfoSettings)
   .settings(
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies ++= Seq(
-      "dev.zio"       %%% "zio"                  % "1.0.0-RC17",
-      "dev.zio"       %%% "zio-streams"          % "1.0.0-RC17" % Optional,
-      "dev.zio"       %%% "zio-test"             % "1.0.0-RC17" % Optional,
+      "dev.zio"       %%% "zio"                  % "1.0.0-RC17+447-bebcd7c8-SNAPSHOT",
+      "dev.zio"       %%% "zio-streams"          % "1.0.0-RC17+447-bebcd7c8-SNAPSHOT" % Optional,
+      "dev.zio"       %%% "zio-test"             % "1.0.0-RC17+447-bebcd7c8-SNAPSHOT" % Optional,
       "org.typelevel" %%% "cats-effect"          % "2.0.0" % Optional,
       "org.typelevel" %%% "cats-mtl-core"        % "0.7.0" % Optional,
       "co.fs2"        %%% "fs2-core"             % "2.1.0" % Test,
-      "dev.zio"       %%% "zio-test-sbt"         % "1.0.0-RC17" % Test,
+      "dev.zio"       %%% "zio-test-sbt"         % "1.0.0-RC17+447-bebcd7c8-SNAPSHOT" % Test,
       "org.specs2"    %%% "specs2-core"          % "4.8.3" % Test,
       "org.specs2"    %%% "specs2-scalacheck"    % "4.8.3" % Test,
       "org.specs2"    %%% "specs2-matcher-extra" % "4.8.3" % Test,
@@ -77,9 +79,10 @@ lazy val coreOnlyTest = crossProject(JSPlatform, JVMPlatform)
   .settings(stdSettings("core-only-test"))
   .settings(skip in publish := true)
   .settings(
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core"    % "2.0.0"      % Test,
-      "dev.zio"       %%% "zio-test-sbt" % "1.0.0-RC17" % Test
+      "dev.zio"       %%% "zio-test-sbt" % "1.0.0-RC17+447-bebcd7c8-SNAPSHOT" % Test
     )
   )
   .settings(testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"))
@@ -87,5 +90,6 @@ lazy val coreOnlyTest = crossProject(JSPlatform, JVMPlatform)
 lazy val coreOnlyTestJVM = coreOnlyTest.jvm
 lazy val coreOnlyTestJS = coreOnlyTest.js
   .settings(
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     libraryDependencies += "io.github.cquiroz" %%% "scala-java-time" % "2.0.0-RC3" % Test
   )

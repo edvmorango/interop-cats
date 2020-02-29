@@ -29,13 +29,13 @@ trait GenIOInteropCats {
   /**
    * Given a generator for `E`, produces a generator for `IO[E, A]` using the `IO.fail` constructor.
    */
-  def genSyncFailure[E: Arbitrary, A]: Gen[IO[E, A]] = Arbitrary.arbitrary[E].map(IO.fail[E])
+  def genSyncFailure[E: Arbitrary, A]: Gen[IO[E, A]] = Arbitrary.arbitrary[E].map(IO.failNow[E])
 
   /**
    * Given a generator for `E`, produces a generator for `IO[E, A]` using the `IO.async` constructor.
    */
   def genAsyncFailure[E: Arbitrary, A]: Gen[IO[E, A]] =
-    Arbitrary.arbitrary[E].map(err => IO.effectAsync[E, A](k => k(IO.fail(err))))
+    Arbitrary.arbitrary[E].map(err => IO.effectAsync[E, A](k => k(IO.failNow(err))))
 
   /**
    * Randomly uses either `genSyncFailure` or `genAsyncFailure` with equal probability.
@@ -61,7 +61,7 @@ trait GenIOInteropCats {
         genOfRace[E, A](io),
         genOfParallel[E, A](io)(genSuccess[E, A]),
         genOfMapErrors[E, A](io)
-      )
+    )
     gen.flatMap(io => genTransformations(functions)(io))
   }
 
@@ -77,7 +77,7 @@ trait GenIOInteropCats {
         genOfIdentityMapErrors[E, A](io),
         genOfRace[E, A](io),
         genOfParallel[E, A](io)(genAsyncSuccess[E, A])
-      )
+    )
     gen.flatMap(io => genTransformations(functions)(io))
   }
 
